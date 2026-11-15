@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AI-Powered Career Navigator | Team ByteStorm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0b1f;
+    --panel: rgba(255,255,255,0.05);
+    --panel-border: rgba(255,255,255,0.10);
+    --text: #f1f5ff;
+    --muted: #a5b0d6;
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --grad: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    --ok: #34d399;
+    --warn: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0;
+    font-family: "Poppins", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100vh;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(59,130,246,0.25), transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(139,92,246,0.28), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(59,130,246,0.15), transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+  .grad-text {
+    background: var(--grad);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+
+  /* Header */
+  header {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+    backdrop-filter: blur(10px);
+    background: rgba(11,11,31,0.7);
+    border-bottom: 1px solid var(--panel-border);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; gap: 12px; flex-wrap: wrap; }
+  .brand { font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .logo {
+    width: 34px; height: 34px; border-radius: 10px; background: var(--grad);
+    display: grid; place-items: center; font-size: 18px;
+  }
+  .team-tag {
+    font-size: 13px; padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--panel-border); color: var(--muted);
+  }
+
+  /* Hero (title slide) */
+  .hero { padding: 80px 0 60px; text-align: center; }
+  .pill {
+    display: inline-block; font-size: 13px; padding: 6px 14px; border-radius: 999px;
+    background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4);
+    color: #d6c8ff; margin-bottom: 20px;
+  }
+  .hero h1 { font-size: clamp(34px, 6vw, 60px); letter-spacing: -0.02em; }
+  .hero p.tagline { color: var(--muted); font-size: clamp(16px, 2.2vw, 20px); max-width: 720px; margin: 16px auto 28px; }
+  .btn {
+    display: inline-block; border: 0; cursor: pointer; font: inherit; font-weight: 600;
+    padding: 13px 24px; border-radius: 12px; color: #fff; background: var(--grad);
+    box-shadow: 0 10px 30px rgba(99,102,241,0.35);
+    transition: transform .2s ease, box-shadow .2s ease;
+    text-decoration: none;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(99,102,241,0.45); }
+  .btn.ghost { background: transparent; border: 1px solid var(--panel-border); box-shadow: none; }
+  .team-line { margin-top: 32px; color: var(--muted); font-size: 14px; }
+
+  /* Cards */
+  section { padding: 56px 0; }
+  .section-head { text-align: center; margin-bottom: 32px; }
+  .section-head p { color: var(--muted); max-width: 640px; margin: 0 auto; }
+  .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card {
+    background: var(--panel); border: 1px solid var(--panel-border);
+    border-radius: 18px; padding: 22px;
+    backdrop-filter: blur(6px);
+    transition: transform .25s ease, border-color .25s ease;
+  }
+  .card:hover { transform: translateY(-4px); border-color: rgba(139,92,246,0.5); }
+  .icon {
+    width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+    font-size: 22px; background: var(--grad); margin-bottom: 14px;
+  }
+  .card h3 { font-size: 18px; }
+  .card p { color: var(--muted); margin: 0; font-size: 15px; }
+
+  /* Flow (workflow slide) */
+  .flow { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+  .step {
+    padding: 12px 16px; border-radius: 12px; background: var(--panel);
+    border: 1px solid var(--panel-border); font-weight: 600; font-size: 14px;
+  }
+  .arrow { color: var(--purple); font-weight: 700; }
+
+  /* Navigator app */
+  .app-grid { display: grid; gap: 22px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .app-grid { grid-template-columns: 380px 1fr; align-items: start; } }
+  .panel {
+    background: var(--panel); border: 1px solid var(--panel-border);
+    border-radius: 18px; padding: 22px;
+  }
+  .panel h3 { font-size: 17px; margin-bottom: 14px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; }
+  input[type="text"], textarea {
+    width: 100%; font: inherit; color: var(--text);
+    background: rgba(255,255,255,0.06); border: 1px solid var(--panel-border);
+    border-radius: 10px; padding: 10px 12px; outline: none;
+  }
+  input[type="text"]:focus, textarea:focus { border-color: var(--purple); }
+  textarea { min-height: 110px; resize: vertical; }
+  .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .check {
+    display: flex; align-items: center; gap: 8px; font-size: 14px;
+    padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.04);
+    border: 1px solid var(--panel-border); cursor: pointer;
+  }
+  .check input { accent-color: var(--purple); }
+  .run { width: 100%; margin-top: 18px; text-align: center; }
+  .note { font-size: 12px; color: var(--muted); margin-top: 12px; }
+
+  .result-stack { display: grid; gap: 18px; }
+  .bar-row { margin: 10px 0; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; }
+  .bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: var(--grad); border-radius: 999px; transition: width .8s ease; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-size: 13px; padding: 6px 12px; border-radius: 999px;
+    background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.35); color: #fde68a;
+  }
+  .chip.ok { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.35); color: #a7f3d0; }
+  .opp {
+    display: flex; justify-content: space-between; gap: 12px; align-items: flex-start;
+    padding: 12px 0; border-bottom: 1px solid var(--panel-border);
+  }
+  .opp:last-child { border-bottom: 0; }
+  .opp b { display: block; font-size: 15px; }
+  .opp span { font-size: 13px; color: var(--muted); }
+  .tag {
+    font-size: 11px; padding: 4px 9px; border-radius: 999px; white-space: nowrap;
+    background: rgba(139,92,246,0.18); color: #d6c8ff;
+  }
+  .road { display: grid; gap: 12px; counter-reset: wk; }
+  .road-item { display: flex; gap: 14px; align-items: flex-start; }
+  .road-num {
+    flex: 0 0 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+    background: var(--grad); font-weight: 700; font-size: 14px;
+  }
+  .road-item b { font-size: 15px; }
+  .road-item p { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+
+  .chat { display: grid; gap: 10px; }
+  .msgs { max-height: 240px; overflow-y: auto; display: grid; gap: 8px; padding-right: 4px; }
+  .msg { padding: 10px 14px; border-radius: 12px; font-size: 14px; max-width: 88%; }
+  .msg.bot { background: rgba(59,130,246,0.14); border: 1px solid rgba(59,130,246,0.3); justify-self: start; }
+  .msg.me { background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.4); justify-self: end; }
+  .chat-row { display: flex; gap: 8px; }
+  .chat-row input { flex: 1; }
+  .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 30px 10px; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+  .stat { text-align: center; padding: 16px 8px; border-radius: 14px; background: var(--panel); border: 1px solid var(--panel-border); }
+  .stat b { font-size: 26px; display: block; }
+  .stat span { font-size: 12px; color: var(--muted); }
+
+  footer {
+    border-top: 1px solid var(--panel-border); margin-top: 40px; padding: 26px 0;
+    color: var(--muted); font-size: 14px;
+  }
+  .foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .sample-note { font-size: 12px; color: var(--muted); margin-top: 14px; }
+
+  .fade { animation: fadeUp .6s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  @media (max-width: 560px) { .checks { grid-template-columns: 1fr; } .stats { grid-template-columns: 1fr 1fr 1fr; } }
+  .muted { color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><div class="logo">🧭</div> AI Career Navigator</div>
+    <div class="team-tag">Team ByteStorm · QNH 2027</div>
+  </div>
+</header>
+
+<!-- Slide 1: Title -->
+<section class="hero">
+  <div class="wrap fade">
+    <span class="pill">✨ Hackathon Prototype · AI/ML</span>
+    <h1><span class="grad-text">AI-Powered</span><br>Career Navigator</h1>
+    <p class="tagline">Empowering Students with Personalized Career Guidance Through Artificial Intelligence</p>
+    <a class="btn" href="#navigator">Try the Prototype →</a>
+    <div class="team-line">Team ByteStorm · Bharath K (Team Leader) · Anupriya R · Aadhithya B</div>
+  </div>
+</section>
+
+<!-- Slide 2: Problem -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <h2>The <span class="grad-text">Career Choice Gap</span></h2>
+      <p>Students have talent but no clear path from campus to career.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="icon">🔍</div><h3>Hard to find opportunities</h3><p>Relevant internships, hackathons and openings are scattered and hard to match.</p></div>
+      <div class="card"><div class="icon">🧑‍🏫</div><h3>No personal guidance</h3><p>Few students get personalized career mentoring.</p></div>
+      <div class="card"><div class="icon">🗺️</div><h3>No structured roadmap</h3><p>Skill development happens without a clear plan.</p></div>
+      <div class="card"><div class="icon">🎯</div><h3>Skill gaps stay hidden</h3><p>Students rarely spot their critical gaps early enough.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 3 & 4: Solution and features -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <h2>A Personal <span class="grad-text">Career Copilot</span></h2>
+      <p>An AI-powered platform that analyzes your skills, closes your gaps and builds your roadmap.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="icon">📄</div><h3>Resume Analysis</h3><p>Parses your resume and detects the skills you already have.</p></div>
+      <div class="card"><div class="icon">📊</div><h3>Skill Assessment</h3><p>Benchmarks your skills against target roles and flags gaps.</p></div>
+      <div class="card"><div class="icon">💼</div><h3>Internship Recommendations</h3><p>Matches you to internships and hackathons for your profile.</p></div>
+      <div class="card"><div class="icon">📚</div><h3>Course Recommendations</h3><p>Suggests learning resources for each missing skill.</p></div>
+      <div class="card"><div class="icon">🛤️</div><h3>Personalized Learning Paths</h3><p>Turns gaps into a week-by-week roadmap.</p></div>
+      <div class="card"><div class="icon">🤖</div><h3>AI Career Assistant</h3><p>24/7 mentorship for your next career move.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 6: Workflow -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <h2>From Student Profile to <span class="grad-text">Career Roadmap</span></h2>
+    </div>
+    <div class="flow">
+      <div class="step">👤 Student Profile</div><span class="arrow">→</span>
+      <div class="step">🧪 Skill Analysis</div><span class="arrow">→</span>
+      <div class="step">🧠 AI Processing</div><span class="arrow">→</span>
+      <div class="step">⚙️ Recommendation Engine</div><span class="arrow">→</span>
+      <div class="step">🗺️ Career Roadmap</div>
+    </div>
+  </div>
+</section>
+
+<!-- Live prototype -->
+<section id="navigator">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Live <span class="grad-text">Prototype</span></h2>
+      <p>Enter your profile, paste your resume text, and let the navigator build your path.</p>
+    </div>
+
+    <div class="app-grid">
+      <!-- Input panel -->
+      <div class="panel">
+        <h3>1 · Your profile</h3>
+        <label for="name">Name</label>
+        <input type="text" id="name" placeholder="e.g. Arun" maxlength="40">
+
+        <label for="resume">Resume text (optional, paste here)</label>
+        <textarea id="resume" placeholder="Paste your resume text. Skills are detected automatically."></textarea>
+
+        <label>Skills you have</label>
+        <div class="checks" id="skillChecks"></div>
+
+        <button class="btn run" id="runBtn">Analyze My Career Path</button>
+        <div class="note">Runs fully in your browser. Nothing is sent to a server.</div>
+      </div>
+
+      <!-- Results -->
+      <div class="result-stack" id="results">
+        <div class="panel empty">
+          Your personalized career report will appear here.<br>
+          Fill in your skills (or paste a resume) and click <b>Analyze</b>.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 7: Impact -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Designed for <span class="grad-text">Measurable Momentum</span></h2>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="icon">🧭</div><h3>Better career decisions</h3><p>Choices backed by skill data, not guesswork.</p></div>
+      <div class="card"><div class="icon">🚀</div><h3>Increased internship success</h3><p>Stronger applications with targeted gap closing.</p></div>
+      <div class="card"><div class="icon">📈</div><h3>Improved employability</h3><p>A focused roadmap that builds job-ready skills.</p></div>
+      <div class="card"><div class="icon">🌱</div><h3>Personalized career growth</h3><p>A path that adapts to each student.</p></div>
+      <div class="card"><div class="icon">🔓</div><h3>Access to opportunities</h3><p>Relevant listings surfaced for every student.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 8: Future & conclusion -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Future Scope &amp; <span class="grad-text">Conclusion</span></h2>
+    </div>
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px,1fr));">
+      <div class="card"><div class="icon">🤝</div><h3>Industry Mentor Matching</h3></div>
+      <div class="card"><div class="icon">🎤</div><h3>Interview Preparation</h3></div>
+      <div class="card"><div class="icon">💼</div><h3>Job Recommendation System</h3></div>
+      <div class="card"><div class="icon">🎨</div><h3>AI Portfolio Builder</h3></div>
+    </div>
+    <div class="panel" style="margin-top:22px; text-align:center;">
+      <p style="margin:0; font-size:17px;">
+        AI-Powered Career Navigator will help students bridge the gap between education and career
+        opportunities through intelligent guidance and personalized recommendations.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div>Team ByteStorm · Bharath K (Leader), Anupriya R, Aadhithya B</div>
+    <div>Quantumard National Hackathon 2027 · Prototype</div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
