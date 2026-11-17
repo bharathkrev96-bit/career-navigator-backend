@@ -108,6 +108,15 @@ function renderReport(r) {
     </div>
 
     <div class="panel fade">
+      <h3>🎤 Interview practice: ${esc(r.best_role)}</h3>
+      ${r.interview.map((q, i) => `
+        <div class="rec">
+          <div><b>${i + 1}. ${esc(q)}</b></div>
+          <div class="tag">Q${i + 1}</div>
+        </div>`).join("")}
+    </div>
+
+    <div class="panel fade">
       <h3>🤖 AI Career Assistant</h3>
       <div class="chat">
         <div class="msgs" id="chatMsgs">
