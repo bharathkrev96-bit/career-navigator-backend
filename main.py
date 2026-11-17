@@ -69,6 +69,28 @@ CATALOG = [
 
 WEIGHT_LABEL = {3: "critical", 2: "important", 1: "nice to have"}
 
+# Interview practice questions for each role
+INTERVIEW = {
+    "Frontend Developer": [
+        "What is the difference between let, const and var?",
+        "What is the CSS box model?",
+        "How is React state different from props?",
+        "What does responsive design mean, and how do you build it?",
+    ],
+    "Backend Developer": [
+        "What is the difference between PUT and PATCH?",
+        "What does a REST API need to be considered RESTful?",
+        "What is the difference between a 404 and a 500 status code?",
+        "How would you secure an API endpoint?",
+    ],
+    "ML / Data Analyst": [
+        "What is overfitting, and how do you prevent it?",
+        "What is the difference between precision and recall?",
+        "What is the difference between supervised and unsupervised learning?",
+        "How would you handle missing values in a dataset?",
+    ],
+}
+
 
 class AnalyzeRequest(BaseModel):
     name: str = Field("", max_length=40)
@@ -145,6 +167,7 @@ def build_report(name: str, owned: set[str]) -> dict:
         "opportunities": opportunities,
         "courses": courses,
         "roadmap": roadmap,
+        "interview": INTERVIEW[best_role],
     }
 
 
