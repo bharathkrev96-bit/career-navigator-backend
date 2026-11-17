@@ -90,6 +90,8 @@ function renderReport(r) {
         <div class="stat"><b>${r.gaps.length}</b><span>Skill gaps</span></div>
       </div>
       <div style="margin-top:18px">${bars}</div>
+      <button id="saveBtn" class="btn" style="margin-top:16px">💾 Save my profile</button>
+      <p id="saveMsg" class="muted"></p>
     </div>
 
     <div class="panel fade">
@@ -105,6 +107,15 @@ function renderReport(r) {
     <div class="panel fade">
       <h3>🛤️ Your personalized learning path</h3>
       <div class="road">${road}</div>
+    </div>
+
+    <div class="panel fade">
+      <h3>🧑‍🏫 Mentors for ${esc(r.best_role)}</h3>
+      ${r.mentors.map(m => `
+        <div class="rec">
+          <div><b>${esc(m.name)}</b><span>${esc(m.note)}</span></div>
+          <div class="tag">Mentor</div>
+        </div>`).join("")}
     </div>
 
     <div class="panel fade">
@@ -133,8 +144,50 @@ function renderReport(r) {
   document.getElementById("chatIn").addEventListener("keydown", e => {
     if (e.key === "Enter") sendChat();
   });
+  document.getElementById("saveBtn").addEventListener("click", saveProfile);
   document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
+async function saveProfile() {
+  const msg = document.getElementById("saveMsg");
+  try {
+    const data = await postJSON("/api/profiles", { report });
+    msg.textContent = `Saved! Your profile ID is ${data.id}. Paste it into "Load a saved profile" to reopen this report.`;
+  } catch (err) {
+    msg.textContent = "Could not save. Check that the server is running.";
+  }
+}
+
+async function loadProfile() {
+  const id = document.getElementById("loadId").value.trim();
+  const msg = document.getElementById("loadMsg");
+  if (!id) return;
+  try {
+    const res = await fetch("/api/profiles/" + encodeURIComponent(id));
+    if (!res.ok) throw new Error("not found");
+    report = await res.json();
+    renderReport(report);
+  } catch (err) {
+    msg.textContent = "No saved profile with that ID.";
+  }
+}
+
+function loadBoxHTML() {
+  return `
+    <div class="panel fade">
+      <h3>📂 Load a saved profile</h3>
+      <div class="chat-row">
+        <input type="text" id="loadId" placeholder="Paste your profile ID">
+        <button id="loadBtn" class="chat-send">Load</button>
+      </div>
+      <p id="loadMsg" class="muted"></p>
+    </div>
+    <div class="panel empty">Your personalized career report will appear here.</div>`;
+}
+
+// Show the Load box when the page opens
+document.getElementById("results").innerHTML = loadBoxHTML();
+document.getElementById("loadBtn").addEventListener("click", loadProfile);
 
 function addMessage(who, text) {
   const box = document.getElementById("chatMsgs");
