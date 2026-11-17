@@ -4,15 +4,19 @@ Run:   uvicorn main:app --reload
 Open:  http://127.0.0.1:8000
 Docs:  http://127.0.0.1:8000/docs
 """
+import json
 import re
+import uuid
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+PROFILES_FILE = DATA_DIR / "profiles.json"
 
 app = FastAPI(title="AI-Powered Career Navigator", version="1.0.0")
 
@@ -68,6 +72,22 @@ CATALOG = [
 ]
 
 WEIGHT_LABEL = {3: "critical", 2: "important", 1: "nice to have"}
+
+# Sample mentors for mentor matching (demo profiles, replace with real mentors later)
+MENTORS = {
+    "Frontend Developer": [
+        {"name": "Sample Mentor A", "note": "Frontend engineer · React and UI design (demo profile)"},
+        {"name": "Sample Mentor B", "note": "Web developer · accessibility and performance (demo profile)"},
+    ],
+    "Backend Developer": [
+        {"name": "Sample Mentor C", "note": "Backend engineer · Python APIs and databases (demo profile)"},
+        {"name": "Sample Mentor D", "note": "Cloud engineer · deployment and DevOps (demo profile)"},
+    ],
+    "ML / Data Analyst": [
+        {"name": "Sample Mentor E", "note": "Data scientist · machine learning and statistics (demo profile)"},
+        {"name": "Sample Mentor F", "note": "Data analyst · dashboards and reporting (demo profile)"},
+    ],
+}
 
 # Interview practice questions for each role
 INTERVIEW = {
@@ -168,6 +188,7 @@ def build_report(name: str, owned: set[str]) -> dict:
         "courses": courses,
         "roadmap": roadmap,
         "interview": INTERVIEW[best_role],
+        "mentors": MENTORS[best_role],
     }
 
 
@@ -211,6 +232,38 @@ def analyze(req: AnalyzeRequest):
 @app.post("/api/chat")
 def chat(req: ChatRequest):
     return {"answer": chat_reply(req.question, req.report)}
+
+
+class SaveRequest(BaseModel):
+    report: dict
+
+
+def load_profiles() -> dict:
+    if not PROFILES_FILE.exists():
+        return {}
+    return json.loads(PROFILES_FILE.read_text(encoding="utf-8"))
+
+
+def write_profiles(profiles: dict) -> None:
+    DATA_DIR.mkdir(exist_ok=True)
+    PROFILES_FILE.write_text(json.dumps(profiles, indent=2), encoding="utf-8")
+
+
+@app.post("/api/profiles")
+def save_profile(req: SaveRequest):
+    profile_id = uuid.uuid4().hex[:8]
+    profiles = load_profiles()
+    profiles[profile_id] = req.report
+    write_profiles(profiles)
+    return {"id": profile_id}
+
+
+@app.get("/api/profiles/{profile_id}")
+def get_profile(profile_id: str):
+    profiles = load_profiles()
+    if profile_id not in profiles:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profiles[profile_id]
 
 
 # Serve the web page (static/index.html and static/app.js).
