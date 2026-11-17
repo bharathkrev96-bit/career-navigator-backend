@@ -178,7 +178,7 @@ function loadBoxHTML() {
       <h3>📂 Load a saved profile</h3>
       <div class="chat-row">
         <input type="text" id="loadId" placeholder="Paste your profile ID">
-        <button id="loadBtn" class="chat-send">Load</button>
+       <button id="loadBtn" class="btn" style="width:auto;padding:10px 20px;margin:0">Load</button>
       </div>
       <p id="loadMsg" class="muted"></p>
     </div>
